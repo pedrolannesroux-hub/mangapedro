@@ -143,7 +143,7 @@
   const botoesDiv = document.getElementById("botoes");
 
   function atualizar() {
-    img.src = `img/cap${capitulo}/` + paginasPorCap[capitulo][paginaAtual];
+    img.src = `cap${capitulo}/` + paginasPorCap[capitulo][paginaAtual];
     contador.innerText = `Capítulo ${capitulo} | Página ${paginaAtual + 1} / ${paginasPorCap[capitulo].length}`;
     document.querySelectorAll("button").forEach(btn => btn.classList.remove("ativo"));
     document.getElementById("btn-" + paginaAtual)?.classList.add("ativo");

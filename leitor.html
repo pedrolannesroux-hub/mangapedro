@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Leitor</title>
+
+  <style>
+    body {
+      background: #0d0d0d;
+      color: white;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 { margin-top: 10px; }
+    #contador { margin: 10px; color: #ccc; }
+
+    .leitor-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    img {
+      max-width: 90%;
+      max-height: 75vh;
+      border-radius: 10px;
+    }
+
+    .nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 40px;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      color: white;
+    }
+
+    .nav:hover { background: rgba(0,0,0,0.8); }
+
+    .nav-esq { left: -50px; }
+    .nav-dir { right: -50px; }
+
+    .nav-cap {
+      font-size: 22px;
+      background: #222;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    .nav-cap:hover { background: #555; }
+
+    .botoes {
+      margin: 15px;
+      max-width: 90%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      margin: 3px;
+      padding: 6px 10px;
+      cursor: pointer;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button.ativo {
+      background: #00bfff;
+      color: black;
+      font-weight: bold;
+    }
+
+    button:hover { background: #555; }
+  </style>
+</head>
+
+<body>
+
+<h1 id="titulo">Minha HQ</h1>
+<div id="contador"></div>
+
+<div class="leitor-container">
+  <span class="nav nav-esq" onclick="anterior()">⬅️</span>
+  <img id="pagina">
+  <span class="nav nav-dir" onclick="proxima()">➡️</span>
+</div>
+
+<div>
+  <span class="nav-cap" onclick="capAnterior()">« Capítulo</span>
+  <span class="nav-cap" onclick="capProximo()">Capítulo »</span>
+</div>
+
+<div class="botoes" id="botoes"></div>
+
+<script>
+  let capitulo = parseInt(new URLSearchParams(window.location.search).get("cap")) || 1;
+
+  const paginasPorCap = {
+    1: ["cap1-1.jpg","cap1-2.jpg","cap1-3.jpg","cap1-4.jpg","cap1-5.jpg","cap1-6.jpg","cap1-7.jpg","cap1-8.jpg","cap1-9.jpg","cap1-10.jpg","cap1-11.jpg","cap1-12.jpg","cap1-13.jpg","cap1-14.jpg","cap1-15.jpg","cap1-16.jpg","cap1-17.jpg","cap1-18.jpg"],
+    2: ["cap2-1.jpg","cap2-2.jpg","cap2-3.jpg","cap2-4.jpg","cap2-5.jpg","cap2-6.jpg","cap2-7.jpg","cap2-8.jpg","cap2-9.jpg","cap2-10.jpg","cap2-11.jpg","cap2-12.jpg","cap2-13.jpg","cap2-14.jpg","cap2-15.jpg","cap2-16.jpg","cap2-17.jpg","cap2-18.jpg","cap2-19.jpg"],
+    3: ["cap3-1.jpg","cap3-2.jpg","cap3-3.jpg","cap3-4.jpg","cap3-5.jpg","cap3-6.jpg","cap3-7.jpg","cap3-8.jpg","cap3-9.jpg","cap3-10.jpg","cap3-11.jpg","cap3-12.jpg","cap3-13.jpg","cap3-14.jpg","cap3-15.jpg","cap3-16.jpg","cap3-17.jpg","cap3-18.jpg","cap3-19.jpg","cap3-20.jpg","cap3-21.jpg"],
+    4: ["cap4-1.jpg","cap4-2.jpg","cap4-3.jpg","cap4-4.jpg","cap4-5.jpg","cap4-6.jpg","cap4-7.jpg","cap4-8.jpg","cap4-9.jpg","cap4-10.jpg","cap4-11.jpg","cap4-12.jpg","cap4-13.jpg","cap4-14.jpg","cap4-15.jpg","cap4-16.jpg","cap4-17.jpg","cap4-18.jpg","cap4-19.jpg","cap4-20.jpg"],
+    5: ["cap5-1.jpg","cap5-2.jpg","cap5-3.jpg","cap5-4.jpg","cap5-5.jpg","cap5-6.jpg","cap5-7.jpg","cap5-8.jpg","cap5-9.jpg","cap5-10.jpg","cap5-11.jpg","cap5-12.jpg","cap5-13.jpg","cap5-14.jpg","cap5-15.jpg","cap5-16.jpg","cap5-17.jpg","cap5-18.jpg","cap5-19.jpg","cap5-20.jpg"],
+    6: ["cap6-1.jpg","cap6-2.jpg","cap6-3.jpg","cap6-4.jpg","cap6-5.jpg","cap6-6.jpg","cap6-7.jpg","cap6-8.jpg","cap6-9.jpg","cap6-10.jpg","cap6-11.jpg"],
+    7: ["cap7-1.jpg","cap7-2.jpg","cap7-3.jpg","cap7-4.jpg","cap7-5.jpg","cap7-6.jpg","cap7-7.jpg","cap7-8.jpg","cap7-9.jpg","cap7-10.jpg","cap7-11.jpg","cap7-12.jpg","cap7-13.jpg","cap7-14.jpg","cap7-15.jpg","cap7-16.jpg","cap7-17.jpg","cap7-18.jpg","cap7-19.jpg","cap7-20.jpg"],
+    8: ["cap8-1.jpg","cap8-2.jpg","cap8-3.jpg","cap8-4.jpg","cap8-5.jpg","cap8-6.jpg","cap8-7.jpg","cap8-8.jpg","cap8-9.jpg","cap8-10.jpg","cap8-11.jpg","cap8-12.jpg","cap8-13.jpg","cap8-14.jpg","cap8-15.jpg","cap8-16.jpg","cap8-17.jpg","cap8-18.jpg","cap8-19.jpg","cap8-20.jpg"],
+    9: ["cap9-1.jpg","cap9-2.jpg","cap9-3.jpg","cap9-4.jpg","cap9-5.jpg","cap9-6.jpg","cap9-7.jpg","cap9-8.jpg","cap9-9.jpg","cap9-10.jpg","cap9-11.jpg","cap9-12.jpg","cap9-13.jpg","cap9-14.jpg","cap9-15.jpg","cap9-16.jpg","cap9-17.jpg","cap9-18.jpg"],
+    10: ["cap10-1.jpg","cap10-2.jpg","cap10-3.jpg","cap10-4.jpg","cap10-5.jpg","cap10-6.jpg","cap10-7.jpg","cap10-8.jpg","cap10-9.jpg","cap10-10.jpg","cap10-11.jpg","cap10-12.jpg","cap10-13.jpg","cap10-14.jpg","cap10-15.jpg","cap10-16.jpg","cap10-17.jpg","cap10-18.jpg","cap10-19.jpg","cap10-20.jpg"],
+    11: ["cap11-1.jpg","cap11-2.jpg","cap11-3.jpg","cap11-4.jpg","cap11-5.jpg","cap11-6.jpg","cap11-7.jpg","cap11-8.jpg","cap11-9.jpg","cap11-10.jpg","cap11-11.jpg","cap11-12.jpg","cap11-13.jpg","cap11-14.jpg","cap11-15.jpg","cap11-16.jpg","cap11-17.jpg","cap11-18.jpg","cap11-19.jpg","cap11-20.jpg"],
+    12: ["cap12-1.jpg","cap12-2.jpg","cap12-3.jpg","cap12-4.jpg","cap12-5.jpg","cap12-6.jpg","cap12-7.jpg","cap12-8.jpg","cap12-9.jpg","cap12-10.jpg","cap12-11.jpg","cap12-12.jpg","cap12-13.jpg","cap12-14.jpg","cap12-15.jpg","cap12-16.jpg","cap12-17.jpg","cap12-18.jpg","cap12-19.jpg","cap12-20.jpg"],
+    13: ["cap13-1.jpg","cap13-2.jpg","cap13-3.jpg","cap13-4.jpg","cap13-5.jpg","cap13-6.jpg","cap13-7.jpg","cap13-8.jpg","cap13-9.jpg","cap13-10.jpg","cap13-11.jpg","cap13-12.jpg","cap13-13.jpg","cap13-14.jpg","cap13-15.jpg","cap13-16.jpg","cap13-17.jpg","cap13-18.jpg","cap13-19.jpg","cap13-20.jpg","cap13-21.jpg"],
+    14: ["cap14-1.jpg","cap14-2.jpg","cap14-3.jpg","cap14-4.jpg","cap14-5.jpg","cap14-6.jpg","cap14-7.jpg","cap14-8.jpg","cap14-9.jpg","cap14-10.jpg","cap14-11.jpg","cap14-12.jpg","cap14-13.jpg","cap14-14.jpg","cap14-15.jpg","cap14-16.jpg","cap14-17.jpg","cap14-18.jpg","cap14-19.jpg"],
+    15: ["cap15-1.jpg","cap15-2.jpg","cap15-3.jpg","cap15-4.jpg","cap15-5.jpg","cap15-6.jpg","cap15-7.jpg","cap15-8.jpg","cap15-9.jpg","cap15-10.jpg","cap15-11.jpg","cap15-12.jpg","cap15-13.jpg","cap15-14.jpg","cap15-15.jpg","cap15-16.jpg","cap15-17.jpg","cap15-18.jpg","cap15-19.jpg","cap15-20.jpg"],
+    16: ["cap16-1.jpg","cap16-2.jpg","cap16-3.jpg","cap16-4.jpg","cap16-5.jpg","cap16-6.jpg","cap16-7.jpg","cap16-8.jpg","cap16-9.jpg","cap16-10.jpg","cap16-11.jpg","cap16-12.jpg","cap16-13.jpg","cap16-14.jpg","cap16-15.jpg","cap16-16.jpg","cap16-17.jpg"],
+    17: ["cap17-1.jpg","cap17-2.jpg","cap17-3.jpg","cap17-4.jpg","cap17-5.jpg","cap17-6.jpg","cap17-7.jpg","cap17-8.jpg","cap17-9.jpg","cap17-10.jpg","cap17-11.jpg","cap17-12.jpg","cap17-13.jpg","cap17-14.jpg","cap17-15.jpg","cap17-16.jpg","cap17-17.jpg","cap17-18.jpg","cap17-19.jpg","cap17-20.jpg"],
+    18: ["cap18-1.jpg","cap18-2.jpg","cap18-3.jpg","cap18-4.jpg","cap18-5.jpg","cap18-6.jpg","cap18-7.jpg","cap18-8.jpg","cap18-9.jpg","cap18-10.jpg","cap18-11.jpg","cap18-12.jpg","cap18-13.jpg","cap18-14.jpg","cap18-15.jpg","cap18-16.jpg","cap18-17.jpg","cap18-18.jpg","cap18-19.jpg","cap18-20.jpg","cap18-21.jpg","cap18-22.jpg","cap18-23.jpg"],
+    19: ["cap19-1.jpg","cap19-2.jpg","cap19-3.jpg","cap19-4.jpg","cap19-5.jpg","cap19-6.jpg","cap19-7.jpg","cap19-8.jpg","cap19-9.jpg","cap19-10.jpg","cap19-11.jpg","cap19-12.jpg","cap19-13.jpg","cap19-14.jpg","cap19-15.jpg","cap19-16.jpg","cap19-17.jpg","cap19-18.jpg","cap19-19.jpg","cap19-20.jpg"],
+    20: ["cap20-1.jpg","cap20-2.jpg","cap20-3.jpg","cap20-4.jpg","cap20-5.jpg","cap20-6.jpg","cap20-7.jpg","cap20-8.jpg","cap20-9.jpg","cap20-10.jpg","cap20-11.jpg","cap20-12.jpg","cap20-13.jpg","cap20-14.jpg","cap20-15.jpg","cap20-16.jpg","cap20-17.jpg","cap20-18.jpg","cap20-19.jpg","cap20-20.jpg","cap20-21.jpg","cap20-22.jpg","cap20-23.jpg","cap20-24.jpg"]
+  };
+
+  const totalCapitulos = Object.keys(paginasPorCap).length;
+  let paginaAtual = 0;
+
+  const img = document.getElementById("pagina");
+  const contador = document.getElementById("contador");
+  const botoesDiv = document.getElementById("botoes");
+
+  function atualizar() {
+    img.src = `img/cap${capitulo}/` + paginasPorCap[capitulo][paginaAtual];
+    contador.innerText = `Capítulo ${capitulo} | Página ${paginaAtual + 1} / ${paginasPorCap[capitulo].length}`;
+    document.querySelectorAll("button").forEach(btn => btn.classList.remove("ativo"));
+    document.getElementById("btn-" + paginaAtual)?.classList.add("ativo");
+  }
+
+  function proxima() {
+    if (paginaAtual < paginasPorCap[capitulo].length - 1) {
+      paginaAtual++;
+    } else if (capitulo < totalCapitulos) {
+      capitulo++; paginaAtual = 0; criarBotoes();
+    }
+    atualizar();
+  }
+
+  function anterior() {
+    if (paginaAtual > 0) {
+      paginaAtual--;
+    } else if (capitulo > 1) {
+      capitulo--; paginaAtual = paginasPorCap[capitulo].length - 1; criarBotoes();
+    }
+    atualizar();
+  }
+
+  function capProximo() { if (capitulo < totalCapitulos) { capitulo++; paginaAtual=0; criarBotoes(); atualizar(); } }
+  function capAnterior() { if (capitulo > 1) { capitulo--; paginaAtual=0; criarBotoes(); atualizar(); } }
+
+  function criarBotoes() {
+    botoesDiv.innerHTML = "";
+    paginasPorCap[capitulo].forEach((p, i) => {
+      const btn = document.createElement("button");
+      btn.innerText = i + 1;
+      btn.id = "btn-" + i;
+      btn.onclick = () => { paginaAtual = i; atualizar(); };
+      botoesDiv.appendChild(btn);
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") proxima();
+    if (e.key === "ArrowLeft") anterior();
+    if (e.key === "PageDown") capProximo();
+    if (e.key === "PageUp") capAnterior();
+  });
+
+  criarBotoes();
+  atualizar();
+
+</script>
+
+</body>
+</html>
